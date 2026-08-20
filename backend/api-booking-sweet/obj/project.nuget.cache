@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "NRptMAjajVo=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\KKKK\\Downloads\\ASPNET-DT24TT8016-letrungkien-bookingsweet\\booking-sweet\\backend\\api-booking-sweet\\api-booking-sweet.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\KKKK\\.nuget\\packages\\microsoft.aspnetcore.openapi\\9.0.19\\microsoft.aspnetcore.openapi.9.0.19.nupkg.sha512",
+    "C:\\Users\\KKKK\\.nuget\\packages\\microsoft.openapi\\1.6.17\\microsoft.openapi.1.6.17.nupkg.sha512"
+  ],
+  "logs": []
+}
