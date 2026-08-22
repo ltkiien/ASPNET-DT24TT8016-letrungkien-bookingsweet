@@ -10,9 +10,14 @@ public class AuthService : IAuthService
 {
     private readonly BookingDbContext _context;
 
-    public AuthService(BookingDbContext context)
+    private readonly JwtService _jwtService;
+
+    public AuthService(
+        BookingDbContext context,
+        JwtService jwtService)
     {
         _context = context;
+        _jwtService = jwtService;
     }
 
     public async Task<LoginResponse?> LoginAsync(LoginRequest request)
@@ -32,6 +37,13 @@ public class AuthService : IAuthService
         if (!passwordCorrect)
             return null;
 
+        var token = _jwtService.GenerateToken(
+        user.Id,
+        user.Email,
+        user.FullName,
+        user.Role
+        );
+
         return new LoginResponse
         {
             Message = "Đăng nhập thành công",
@@ -42,7 +54,8 @@ public class AuthService : IAuthService
                 Email = user.Email,
                 Phone = user.Phone,
                 AvatarUrl = user.AvatarUrl,
-                Role = user.Role
+                Role = user.Role,
+                Token = token
             }
         };
     }
@@ -72,7 +85,7 @@ public class AuthService : IAuthService
             PasswordHash = passwordHash,
             Phone = request.Phone,
             IsActive = true,
-            Role = "Customer"
+            Role = "User"
         };
 
         _context.Users.Add(user);

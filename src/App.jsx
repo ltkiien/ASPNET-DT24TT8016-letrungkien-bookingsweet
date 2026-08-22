@@ -1,8 +1,11 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-// import Home from "./pages/Home";
+import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import AdminRoute from "./routes/AdminRoute";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+
 // import Hotels from "./pages/Hotels";
 // import HotelDetail from "./pages/HotelDetail";
 // import Booking from "./pages/Booking";
@@ -13,10 +16,20 @@ function App() {
     return (
         <BrowserRouter>
             <Routes>
-                {/* <Route path="/" element={<Home />} /> */}
+                <Route path="/" element={<Home />} />
 
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+
+                 {/* Admin */}
+                <Route
+                    path="/admin"
+                    element={
+                        <AdminRoute>
+                            <AdminDashboard />
+                        </AdminRoute>
+                    }
+                />
 
                 {/* <Route path="/hotels" element={<Hotels />} />
                 <Route path="/hotels/:id" element={<HotelDetail />} />

@@ -1,3 +1,4 @@
+import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "../components/LanguageSwitcher";
@@ -16,12 +17,14 @@ import { login } from "../api/authApi";
 function Login() {
     const navigate = useNavigate();
     const { t } = useTranslation();
+
+const { loginUser } = useAuth();
     
     const [form, setForm] = useState({
         email: "",
         password: "",
     });
-console.log("App Name:", import.meta.env.VITE_BACKEND_URL);
+
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -55,6 +58,14 @@ console.log("App Name:", import.meta.env.VITE_BACKEND_URL);
                 form.email,
                 form.password
             );
+
+            loginUser(data);
+
+            if (data.role === "Admin") {
+                navigate("/admin");
+            } else {
+                navigate("/");
+            }
 
             localStorage.setItem(
                 "user",

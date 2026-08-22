@@ -8,7 +8,7 @@ public class User
     public string PasswordHash { get; set; } = "";
     public string? Phone { get; set; }
     public string? AvatarUrl { get; set; }
-    public string Role { get; set; } = "Customer";
+    public string Role { get; set; } = "User";
     public bool IsActive { get; set; } = true;
     public DateTime CreatedAt { get; set; }
 }
