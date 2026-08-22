@@ -1,8 +1,6 @@
-using BCrypt.Net;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using backend.Data;
 using backend.DTOs.Auth;
+using backend.Services;
 
 namespace backend.Controllers;
 
@@ -10,20 +8,26 @@ namespace backend.Controllers;
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
-    private readonly BookingDbContext _context;
+    private readonly IAuthService _authService;
 
-    public AuthController(BookingDbContext context)
+    public AuthController(IAuthService authService)
     {
-        _context = context;
+        _authService = authService;
     }
 
+    // POST: api/Auth/login
     [HttpPost("login")]
-    public async Task<IActionResult> Login(LoginRequest request)
+    public async Task<IActionResult> Login(
+        [FromBody] LoginRequest request)
     {
-        var user = await _context.Users
-            .FirstOrDefaultAsync(x => x.Email == request.Email);
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
 
-        if (user == null)
+        var result = await _authService.LoginAsync(request);
+
+        if (result == null)
         {
             return Unauthorized(new
             {
@@ -31,38 +35,29 @@ public class AuthController : ControllerBase
             });
         }
 
-        if (!user.IsActive)
+        return Ok(result);
+    }
+
+    // POST: api/Auth/register
+    [HttpPost("register")]
+    public async Task<IActionResult> Register(
+    [FromBody] RegisterRequest request)
+    {
+        if (!ModelState.IsValid)
         {
-            return Unauthorized(new
+            return BadRequest(ModelState);
+        }
+
+        var result = await _authService.RegisterAsync(request);
+
+        if (result == null)
+        {
+            return Conflict(new
             {
-                message = "Tài khoản đã bị khóa"
+                message = "Email đã được sử dụng"
             });
         }
 
-        var passwordCorrect =
-            BCrypt.Verify(request.Password, user.PasswordHash);
-
-        if (!passwordCorrect)
-        {
-            return Unauthorized(new
-            {
-                message = "Email hoặc mật khẩu không đúng"
-            });
-        }
-
-        return Ok(new LoginResponse
-        {
-            Message = "Đăng nhập thành công",
-
-            User = new UserResponse
-            {
-                Id = user.Id,
-                FullName = user.FullName,
-                Email = user.Email,
-                Phone = user.Phone,
-                AvatarUrl = user.AvatarUrl,
-                Role = user.Role
-            }
-        });
+        return Ok(result);
     }
 }

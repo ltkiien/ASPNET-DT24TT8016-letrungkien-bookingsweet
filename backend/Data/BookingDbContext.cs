@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using MyApi.Models;
+using backend.Models;
 
-namespace MyApi.Data;
+namespace backend.Data;
 
 public class BookingDbContext : DbContext
 {
