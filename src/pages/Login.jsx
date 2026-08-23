@@ -61,7 +61,7 @@ const { loginUser } = useAuth();
 
             loginUser(data);
 
-            if (data.role === "Admin") {
+            if (data?.user?.role === "Admin") {
                 navigate("/admin");
             } else {
                 navigate("/");
@@ -71,8 +71,6 @@ const { loginUser } = useAuth();
                 "user",
                 JSON.stringify(data.user)
             );
-
-            navigate("/");
         } catch (error) {
             setError(
                 error.message || t("login.loginFailed")

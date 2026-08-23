@@ -3,6 +3,7 @@ import { useAuth } from "../context/AuthContext";
 
 function AdminRoute({ children }) {
     const { isAuthenticated, isAdmin } = useAuth();
+    console.log("isAuthenticated:", isAuthenticated, isAdmin);
 
     if (!isAuthenticated) {
         return (

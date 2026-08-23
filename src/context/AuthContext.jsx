@@ -15,7 +15,7 @@ export function AuthProvider({ children }) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data));
 
-        setUser(data);
+        setUser(data?.user);
     };
 
     const logout = () => {
@@ -24,7 +24,8 @@ export function AuthProvider({ children }) {
 
         setUser(null);
     };
-
+    
+    console.log("AuthContext user:", user);
     return (
         <AuthContext.Provider
             value={{

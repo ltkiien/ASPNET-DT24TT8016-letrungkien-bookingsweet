@@ -1,4 +1,3 @@
-using BCrypt.Net;
 using Microsoft.EntityFrameworkCore;
 using backend.Data;
 using backend.DTOs.Auth;
@@ -28,11 +27,7 @@ public class AuthService : IAuthService
         if (user == null || !user.IsActive)
             return null;
 
-        var passwordCorrect =
-            BCrypt.Net.BCrypt.Verify(
-                request.Password,
-                user.PasswordHash
-            );
+        var passwordCorrect = request.Password == user.PasswordHash;
 
         if (!passwordCorrect)
             return null;
@@ -71,11 +66,7 @@ public class AuthService : IAuthService
             return null;
         }
 
-        // Hash password
-        var passwordHash =
-            BCrypt.Net.BCrypt.HashPassword(
-                request.Password
-            );
+        var passwordHash = request.Password;
 
         // Tạo user
         var user = new User

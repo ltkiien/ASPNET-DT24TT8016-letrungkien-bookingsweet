@@ -6,12 +6,6 @@ import Register from "./pages/Register";
 import AdminRoute from "./routes/AdminRoute";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 
-// import Hotels from "./pages/Hotels";
-// import HotelDetail from "./pages/HotelDetail";
-// import Booking from "./pages/Booking";
-// import Profile from "./pages/Profile";
-// import NotFound from "./pages/NotFound";
-
 function App() {
     return (
         <BrowserRouter>
@@ -30,15 +24,6 @@ function App() {
                         </AdminRoute>
                     }
                 />
-
-                {/* <Route path="/hotels" element={<Hotels />} />
-                <Route path="/hotels/:id" element={<HotelDetail />} />
-
-                <Route path="/booking/:id" element={<Booking />} />
-
-                <Route path="/profile" element={<Profile />} />
-
-                <Route path="*" element={<NotFound />} /> */}
             </Routes>
         </BrowserRouter>
     );
