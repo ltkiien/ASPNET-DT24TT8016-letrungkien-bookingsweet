@@ -89,11 +89,6 @@ function Register() {
                 form.phone
             );
 
-            console.log(
-                "Register success:",
-                data
-            );
-
             // Đăng ký thành công
             navigate("/login");
 

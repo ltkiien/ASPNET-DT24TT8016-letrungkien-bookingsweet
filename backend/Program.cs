@@ -69,6 +69,7 @@ builder.Services.AddOpenApi();
 
 // Services
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IHotelService, HotelService>();
 
 
 var app = builder.Build();
@@ -78,6 +79,8 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseHttpsRedirection();
 

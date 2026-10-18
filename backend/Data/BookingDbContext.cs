@@ -11,6 +11,7 @@ public class BookingDbContext : DbContext
     }
 
     public DbSet<User> Users => Set<User>();
+    public DbSet<Hotel> Hotels { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -142,31 +142,37 @@ function AdminDashboard() {
                     </div>
 
                     <SidebarItem
+                        link={"/admin/hotels"}
                         icon={<Hotel size={19} />}
                         text="Khách sạn"
                     />
 
                     <SidebarItem
+                        link={"/admin/hotels"}
                         icon={<BedDouble size={19} />}
                         text="Phòng"
                     />
 
                     <SidebarItem
+                        link={"/admin/hotels"}
                         icon={<CalendarCheck size={19} />}
                         text="Đặt phòng"
                     />
 
                     <SidebarItem
+                        link={"/admin/hotels"}
                         icon={<Users size={19} />}
                         text="Khách hàng"
                     />
 
                     <SidebarItem
+                        link={"/admin/hotels"}
                         icon={<CreditCard size={19} />}
                         text="Thanh toán"
                     />
 
                     <SidebarItem
+                        link={"/admin/hotels"}
                         icon={<Star size={19} />}
                         text="Đánh giá"
                     />
@@ -176,6 +182,7 @@ function AdminDashboard() {
                     </div>
 
                     <SidebarItem
+                        link={"/admin/hotels"}
                         icon={<Settings size={19} />}
                         text="Cài đặt"
                     />
@@ -994,10 +1001,10 @@ function AdminDashboard() {
     );
 }
 
-function SidebarItem({ icon, text, active = false }) {
+function SidebarItem({ icon, text, active = false, link = "#" }) {
     return (
         <Link
-            to="#"
+            to={link}
             className={`sidebar-item ${
                 active ? "active" : ""
             }`}
