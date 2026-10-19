@@ -29,7 +29,8 @@ public class Hotel
     public string Country { get; set; } = string.Empty;
 
     [Range(1, 5)]
-    public int StarRating { get; set; } = 3;
+    public decimal StarRating { get; set; } = 3;
+    // public ICollection<Room> Rooms { get; set; } = new List<Room>();
 
     [Column(TypeName = "decimal(18,2)")]
     [Range(0, 1000000000)]

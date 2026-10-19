@@ -53,9 +53,10 @@ public class HotelService : IHotelService
     }
 
     // Cập nhật khách sạn
+
     public async Task<Hotel?> UpdateAsync(
         int id,
-        CreateHotelDto request)
+        UpdateHotelDto request)
     {
         var hotel = await _context.Hotels
             .FirstOrDefaultAsync(h => h.Id == id);
@@ -67,14 +68,24 @@ public class HotelService : IHotelService
         hotel.Address = request.Address.Trim();
         hotel.City = request.City.Trim();
         hotel.Description = request.Description?.Trim();
+
         hotel.Price = request.Price;
         hotel.StarRating = request.StarRating;
+
+        hotel.Latitude = request.Latitude;
+        hotel.Longitude = request.Longitude;
+
+        hotel.ImageUrl = request.ImageUrl?.Trim();
+        hotel.Phone = request.Phone?.Trim();
+        hotel.Email = request.Email?.Trim();
+
         hotel.IsActive = request.IsActive;
 
         await _context.SaveChangesAsync();
 
         return hotel;
     }
+
 
     // Xóa khách sạn
     public async Task<bool> DeleteAsync(int id)

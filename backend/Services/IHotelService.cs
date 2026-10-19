@@ -11,7 +11,7 @@ public interface IHotelService
 
     Task<Hotel?> GetByIdAsync(int id);
 
-    Task<Hotel?> UpdateAsync(int id, CreateHotelDto request);
+    Task<Hotel?> UpdateAsync(int id, UpdateHotelDto request);
 
     Task<bool> DeleteAsync(int id);
 }

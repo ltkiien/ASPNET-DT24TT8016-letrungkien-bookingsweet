@@ -69,3 +69,47 @@ export async function getAllHotels() {
   // Hỗ trợ cả response dạng { data: [...] } và trả về mảng trực tiếp
   return Array.isArray(result) ? result : result?.data ?? [];
 }
+
+export async function updateHotel(id, hotelData) {
+  const token = getToken();
+  const response = await fetch(
+    `http://localhost:5198/api/Hotels/${id}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(hotelData),
+    }
+  );
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      result.message || "Cập nhật khách sạn thất bại"
+    );
+  }
+
+  return result;
+}
+
+export const deleteHotel = async (id, token) => {
+  const response = await fetch(`${API_URL}/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const result = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(
+      result?.message || `Xóa khách sạn thất bại (${response.status})`
+    );
+  }
+
+  return result;
+};

@@ -1,7 +1,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import {createHotel, getAllHotels} from "../../api/HotelsApi";
+import {createHotel, getAllHotels, updateHotel} from "../../api/HotelsApi";
 // import {HotelModal} from "../../components/admin/HotelModal";
 import {
     Hotel, Search, Plus, MapPin, BedDouble,
@@ -9,6 +9,7 @@ import {
     ChevronRight, SlidersHorizontal, Star,
     ArrowLeft, ImagePlus
 } from "lucide-react";
+import DataTable from "./common/DataTable";
 
 const initialHotels = [
     {
@@ -61,6 +62,36 @@ const initialHotels = [
     }
 ];
 
+const statusMap = {
+  active: { label: "Hoạt động", cls: "success" },
+  inactive: { label: "Tạm ngưng", cls: "secondary" },
+};
+
+const StatusBadge = ({ value }) => {
+  const s = statusMap[value] || { label: value, cls: "light" };
+  return <span className={`badge rounded-pill text-bg-${s.cls}`}>{s.label}</span>;
+};
+
+const fields = [
+//   { name: "code", label: "Mã khách sạn", required: true, readOnlyOnEdit: true },
+  { name: "name", label: "Tên khách sạn", required: true },
+  { name: "city", label: "Thành phố", required: true },
+  { name: "stars", label: "Hạng sao", type: "select", required: true, options: [1, 2, 3, 4, 5].map((n) => ({ value: n, label: `${n} sao` })) },
+  { name: "phone", label: "Điện thoại", type: "tel", pattern: "^[0-9+\\s-]{8,15}$", patternMessage: "Số điện thoại không hợp lệ" },
+  { name: "email", label: "Email", type: "email" },
+  { name: "status", label: "Trạng thái", type: "select", required: true, defaultValue: "active", options: Object.entries(statusMap).map(([value, { label }]) => ({ value, label })) },
+  { name: "address", label: "Địa chỉ", type: "textarea" },
+];
+
+const columns = [
+  { key: "code", label: "Mã", width: 110 },
+  { key: "name", label: "Tên khách sạn", render: (v) => <span className="fw-medium">{v}</span> },
+  { key: "city", label: "Thành phố" },
+  { key: "stars", label: "Hạng sao", align: "center", render: (v) => "★".repeat(v) },
+  { key: "phone", label: "Điện thoại", sortable: false },
+  { key: "status", label: "Trạng thái", align: "center", render: (v) => <StatusBadge value={v} /> },
+];
+
 const emptyForm = {
     name: "",
     city: "",
@@ -94,7 +125,6 @@ function HotelManagement() {
 
     const pageSize = 5;
 
-    useEffect(() => {
     async function loadHotels() {
       try {
         setLoading(true);
@@ -108,6 +138,7 @@ function HotelManagement() {
         setLoading(false);
       }
     }
+    useEffect(() => {
 
     loadHotels();
   }, []);
@@ -181,71 +212,38 @@ function HotelManagement() {
         }));
     };
 
-    const handleSave = async (e) => {
-        e.preventDefault();
-        setError("");
-
-        if (
-            !form.name.trim() ||
-            !form.city.trim() ||
-            !form.address.trim() ||
-            !form.price ||
-            !form.rooms
-        ) {
-            setError("Vui lòng nhập đầy đủ các trường bắt buộc.");
-            return;
-        }
-
-        if (
-            !Number.isFinite(Number(form.price)) ||
-            Number(form.price) <= 0 ||
-            !Number.isInteger(Number(form.rooms)) ||
-            Number(form.rooms) <= 0
-        ) {
-            setError("Giá phải lớn hơn 0 và số phòng phải là số nguyên dương.");
-            return;
-        }
-
-        const hotelData = {
-            ...form,
-            name: form.name.trim(),
-            city: form.city.trim(),
-            address: form.address.trim(),
-            price: Number(form.price),
-            rooms: Number(form.rooms),
-            rating: editingHotel?.rating ?? 0,
-            imageUrl: form.image.trim() ||
-                "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500"
-        };
-        
-
-        if (editingHotel) {
-            setHotels(prev =>
-                prev.map(h =>
-                    h.id === editingHotel.id
-                        ? { ...h, ...hotelData }
-                        : h
-                )
-            );
-            setMessage("Đã cập nhật khách sạn.");
-        } else {
+    const handleCreate = async (payload) => {
+    
             try {
-                const result = await createHotel(hotelData);
+                const result = await createHotel(payload);
                 const newHotel = result?.data;
                 console.log("API response:", result);
                 if (!newHotel) {
                 throw new Error("API không trả về thông tin khách sạn.");
                 }
-
-                setHotels((prev) => [newHotel, ...prev]);
-                setPage(1);
+                loadHotels();
                 setMessage(result?.message || "Thêm khách sạn thành công!");
             } catch (error) {
                 setMessage(error.message || "Không thể thêm khách sạn.");
             }
-        }
+            setMessage("Đã cập nhật khách sạn.");
+    };
+    const handleUpdate = async (payload) => {
+        console.log("Updating hotel with payload:", payload);
+            try {
+            const result = await updateHotel(payload.id, payload);
+            const newHotel = result?.data;
+            console.log("API response:", result);
+            if (!newHotel) {
+            throw new Error("API không trả về thông tin khách sạn.");
+            }
 
-        closeModal();
+            setHotels((prev) => [newHotel, ...prev]);
+            setPage(1);
+            setMessage(result?.message || "Cập nhật khách sạn thành công!");
+        } catch (error) {
+            setMessage(error.message || "Không thể cập nhật khách sạn.");
+        }
     };
 
     const handleDelete = (hotel) => {
@@ -623,6 +621,20 @@ function HotelManagement() {
                         </div>
                     </div>
 
+                    <DataTable
+                        title="Quản lý khách sạn"
+                        subtitle="Danh sách khách sạn trong hệ thống"
+                        entityName="khách sạn"
+                        columns={columns}
+                        fields={fields}
+                        data={hotels}
+                        onCreate={handleCreate}
+                        onUpdate={handleUpdate}
+                        onDelete={handleDelete}
+                        deleteLabel={(row) => row.name}
+                    />
+
+
                     <div className="table-responsive">
                         <table className="table hm-table">
                             <thead>
@@ -643,7 +655,7 @@ function HotelManagement() {
                                             <div className="hm-hotel-cell">
                                                 <img
                                                     className="hm-hotel-img"
-                                                    src={hotel.image}
+                                                    src={hotel.imageUrl}
                                                     alt={hotel.name}
                                                     onError={e => {
                                                         e.currentTarget.style.visibility = "hidden";

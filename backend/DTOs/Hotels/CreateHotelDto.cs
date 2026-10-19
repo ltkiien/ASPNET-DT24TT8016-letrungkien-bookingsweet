@@ -19,12 +19,8 @@ public class CreateHotelDto
     [StringLength(100)]
     public string City { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "Quốc gia không được để trống")]
-    [StringLength(100)]
-    public string Country { get; set; } = string.Empty;
-
     [Range(1, 5, ErrorMessage = "Số sao phải từ 1 đến 5")]
-    public int StarRating { get; set; } = 3;
+    public decimal StarRating { get; set; } = 3;
 
     [Range(0, 1000000000,
         ErrorMessage = "Giá khách sạn không hợp lệ")]
