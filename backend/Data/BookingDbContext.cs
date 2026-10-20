@@ -12,6 +12,7 @@ public class BookingDbContext : DbContext
 
     public DbSet<User> Users => Set<User>();
     public DbSet<Hotel> Hotels { get; set; }
+    public DbSet<Room> Rooms { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -24,5 +25,14 @@ public class BookingDbContext : DbContext
         modelBuilder.Entity<User>()
             .HasIndex(x => x.Email)
             .IsUnique();
+
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<Hotel>()
+            .HasMany(h => h.Rooms)
+            .WithOne(r => r.Hotel)
+            .HasForeignKey(r => r.HotelId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
