@@ -1,0 +1,129 @@
+
+.admin-page-container {
+    width: 100%;
+    max-width: 1440px;
+    min-width: 0;
+    margin: 0 auto;
+    padding: 28px 32px 40px;
+    color: #262f3d;
+    box-sizing: border-box;
+}
+
+.admin-page-container *,
+.admin-page-container *::before,
+.admin-page-container *::after {
+    box-sizing: border-box;
+}
+
+/* Breadcrumb */
+.admin-breadcrumbs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: #667085;
+}
+
+.admin-breadcrumb-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.admin-breadcrumb-item a {
+    color: #006ce4;
+    text-decoration: none;
+}
+
+.admin-breadcrumb-item a:hover {
+    text-decoration: underline;
+}
+
+.admin-breadcrumb-separator {
+    color: #98a2b3;
+}
+
+/* Page heading */
+.admin-page-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.admin-page-heading-content {
+    min-width: 0;
+}
+
+.admin-page-title {
+    margin: 0;
+    color: #1a1a1a;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.35;
+    letter-spacing: -0.5px;
+}
+
+.admin-page-subtitle {
+    margin: 8px 0 0;
+    color: #667085;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.admin-page-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* Content */
+.admin-page-content {
+    width: 100%;
+    min-width: 0;
+}
+
+.admin-page-content > * + * {
+    margin-top: 24px;
+}
+
+/* Full-width mode */
+.admin-page-container--fluid {
+    max-width: none;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .admin-page-container {
+        padding: 24px;
+    }
+
+    .admin-page-title {
+        font-size: 25px;
+    }
+}
+
+@media (max-width: 576px) {
+    .admin-page-container {
+        padding: 18px 14px 28px;
+    }
+
+    .admin-page-heading {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .admin-page-title {
+        font-size: 23px;
+    }
+
+    .admin-page-actions {
+        justify-content: flex-start;
+    }
+}

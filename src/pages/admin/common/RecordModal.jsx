@@ -98,6 +98,8 @@ export default function RecordModal({ mode, title, fields, record, size = "lg", 
     return v === "" || v == null ? "—" : String(v);
   };
 
+  console.log("RecordModal render", { values, errors, submitting, serverError, visibleFields });
+
   const renderInput = (f) => {
     const invalid = !!errors[f.name];
     const common = {

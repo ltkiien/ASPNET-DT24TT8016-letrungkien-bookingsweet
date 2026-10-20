@@ -6,6 +6,7 @@ import Register from "./pages/Register";
 import AdminRoute from "./routes/AdminRoute";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import HotelManagement from "./pages/admin/HotelManagement";
+import RoomManagement from "./pages/admin/RoomManagement";
 
 function App() {
     return (
@@ -30,6 +31,14 @@ function App() {
                     element={
                         <AdminRoute>
                             <HotelManagement />
+                        </AdminRoute>
+                    }
+                />
+                <Route
+                    path="/admin/rooms"
+                    element={
+                        <AdminRoute>
+                            <RoomManagement />
                         </AdminRoute>
                     }
                 />

@@ -148,7 +148,7 @@ function AdminDashboard() {
                     />
 
                     <SidebarItem
-                        link={"/admin/hotels"}
+                        link={"/admin/rooms"}
                         icon={<BedDouble size={19} />}
                         text="Phòng"
                     />
