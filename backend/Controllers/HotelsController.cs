@@ -18,6 +18,53 @@ public class HotelsController : ControllerBase
         _context = context;
     }
 
+    private static readonly string[] AllowedStatuses =
+    {
+        "active",
+        "inactive",
+        "closed"
+        };
+
+    private static HotelResponseDto MapHotel(Hotel hotel)
+    {
+        List<string> gallery = new();
+
+        if (!string.IsNullOrWhiteSpace(hotel.Gallery))
+        {
+            try
+            {
+                gallery =
+                    System.Text.Json.JsonSerializer
+                        .Deserialize<List<string>>(hotel.Gallery)
+                    ?? new List<string>();
+            }
+            catch (System.Text.Json.JsonException)
+            {
+                // Dữ liệu cũ không phải JSON hợp lệ
+                gallery = new List<string>();
+            }
+        }
+
+        return new HotelResponseDto
+        {
+            Id = hotel.Id,
+            Name = hotel.Name,
+            Description = hotel.Description,
+            Address = hotel.Address,
+            City = hotel.City,
+            StarRating = hotel.StarRating,
+            Price = hotel.Price,
+            Latitude = hotel.Latitude,
+            Longitude = hotel.Longitude,
+            ImageUrl = hotel.ImageUrl,
+            Gallery = gallery,
+            Phone = hotel.Phone,
+            Email = hotel.Email,
+            Status = hotel.Status,
+            CreatedAt = hotel.CreatedAt
+        };
+    }
+
     // POST: /api/Hotels
     [HttpPost]
     [Authorize(Roles = "Admin")]
@@ -27,6 +74,8 @@ public class HotelsController : ControllerBase
         // Kiểm tra dữ liệu
         if (!ModelState.IsValid)
             return ValidationProblem(ModelState);
+        if (!AllowedStatuses.Contains(request.Status))
+            return BadRequest(new { message = "Trạng thái khách sạn không hợp lệ." });
 
         var hotel = new Hotel
         {
@@ -37,14 +86,14 @@ public class HotelsController : ControllerBase
 
             StarRating = request.StarRating,
             Price = request.Price,
-
+            Gallery = System.Text.Json.JsonSerializer.Serialize(request.Gallery),
             Latitude = request.Latitude,
             Longitude = request.Longitude,
             ImageUrl = request.ImageUrl?.Trim(),
             Phone = request.Phone?.Trim(),
             Email = request.Email?.Trim(),
 
-            IsActive = request.IsActive,
+            Status = request.Status,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -57,7 +106,7 @@ public class HotelsController : ControllerBase
             new
             {
                 message = "Thêm khách sạn thành công",
-                data = hotel
+                data = MapHotel(hotel)
             });
     }
 
@@ -75,7 +124,7 @@ public class HotelsController : ControllerBase
                 message = "Không tìm thấy khách sạn"
             });
 
-        return Ok(hotel);
+        return Ok(MapHotel(hotel));
     }
 
     // GET: api/Hotels
@@ -91,7 +140,7 @@ public class HotelsController : ControllerBase
         return Ok(new
         {
             message = "Lấy danh sách khách sạn thành công",
-            data = hotels
+            data = hotels.Select(MapHotel).ToList()
         });
     }
 
@@ -103,6 +152,14 @@ public class HotelsController : ControllerBase
     {
         var hotel = await _context.Hotels
             .FirstOrDefaultAsync(h => h.Id == id);
+
+        if (AllowedStatuses.Contains(request.Status) == false)
+        {
+            return BadRequest(new
+            {
+                message = "Trạng thái khách sạn không hợp lệ"
+            });
+        }
 
         if (hotel == null)
         {
@@ -121,16 +178,17 @@ public class HotelsController : ControllerBase
         hotel.Latitude = request.Latitude;
         hotel.Longitude = request.Longitude;
         hotel.ImageUrl = request.ImageUrl?.Trim();
+        hotel.Gallery = System.Text.Json.JsonSerializer.Serialize(request.Gallery);
         hotel.Phone = request.Phone?.Trim();
         hotel.Email = request.Email?.Trim();
-        hotel.IsActive = request.IsActive;
+        hotel.Status = request.Status;
 
         await _context.SaveChangesAsync();
 
         return Ok(new
         {
             message = "Cập nhật khách sạn thành công",
-            data = hotel
+            data = MapHotel(hotel)
         });
     }
 

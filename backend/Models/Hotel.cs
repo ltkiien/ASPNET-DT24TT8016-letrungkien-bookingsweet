@@ -45,6 +45,8 @@ public class Hotel
     [StringLength(500)]
     public string? ImageUrl { get; set; }
 
+    public string? Gallery { get; set; }
+
     [StringLength(20)]
     public string? Phone { get; set; }
 
@@ -52,7 +54,7 @@ public class Hotel
     [StringLength(256)]
     public string? Email { get; set; }
 
-    public bool IsActive { get; set; } = true;
+    public string Status { get; set; } = "active";
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

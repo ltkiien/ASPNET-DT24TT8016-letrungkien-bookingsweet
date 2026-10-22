@@ -86,7 +86,9 @@ app.UseHttpsRedirection();
 
 app.UseCors("ReactApp");
 
+app.UseStaticFiles();
 // Map Controllers
 app.MapControllers();
+
 
 app.Run();

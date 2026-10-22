@@ -22,9 +22,17 @@ public class RoomsController : ControllerBase
 
     private static readonly string[] AllowedStatuses =
     {
-        "Available",
-        "Maintenance",
-        "Inactive"
+        "available",
+        "maintenance",
+        "occupied"
+    };
+    private static readonly string[] AllowedTypes =
+    {
+        "single",
+        "double",
+        "twin",
+        "family",
+        "suite"
     };
 
     [HttpGet("/api/rooms")]
@@ -40,6 +48,9 @@ public class RoomsController : ControllerBase
                 r.Name,
                 r.RoomNumber,
                 r.Capacity,
+                r.Floor,
+                r.Gallery,
+                r.Type,
                 r.Price,
                 r.Status,
                 r.Description
@@ -71,6 +82,9 @@ public class RoomsController : ControllerBase
                 r.Name,
                 r.RoomNumber,
                 r.Capacity,
+                r.Floor,
+                r.Gallery,
+                r.Type,
                 r.Price,
                 r.Status,
                 r.Description
@@ -96,6 +110,9 @@ public class RoomsController : ControllerBase
                 r.Name,
                 r.RoomNumber,
                 r.Capacity,
+                r.Floor,
+                r.Gallery,
+                r.Type,
                 r.Price,
                 r.Status,
                 r.Description
@@ -116,6 +133,9 @@ public class RoomsController : ControllerBase
     {
         if (!AllowedStatuses.Contains(dto.Status))
             return BadRequest(new { message = "Trạng thái phòng không hợp lệ." });
+
+        if (!AllowedTypes.Contains(dto.Type))
+            return BadRequest(new { message = "Loại phòng không hợp lệ." });
 
         var hotelExists = await _context.Hotels
             .AnyAsync(h => h.Id == hotelId, cancellationToken);
@@ -139,9 +159,12 @@ public class RoomsController : ControllerBase
             Name = dto.Name.Trim(),
             RoomNumber = roomNumber,
             Capacity = dto.Capacity,
+            Floor = dto.Floor,
+            Type = dto.Type,
             Price = dto.Price,
             Status = dto.Status,
-            Description = dto.Description?.Trim()
+            Description = dto.Description?.Trim(),
+            Gallery = System.Text.Json.JsonSerializer.Serialize(dto.Gallery)
         };
 
         _context.Rooms.Add(room);
@@ -162,6 +185,9 @@ public class RoomsController : ControllerBase
     {
         if (!AllowedStatuses.Contains(dto.Status))
             return BadRequest(new { message = "Trạng thái phòng không hợp lệ." });
+
+        if (!AllowedTypes.Contains(dto.Type))
+            return BadRequest(new { message = "Loại phòng không hợp lệ." });
 
         var room = await _context.Rooms.FirstOrDefaultAsync(
             r => r.HotelId == hotelId && r.Id == id,
@@ -184,10 +210,12 @@ public class RoomsController : ControllerBase
         room.Name = dto.Name.Trim();
         room.RoomNumber = roomNumber;
         room.Capacity = dto.Capacity;
+        room.Floor = dto.Floor;
+        room.Type = dto.Type;
         room.Price = dto.Price;
         room.Status = dto.Status;
         room.Description = dto.Description?.Trim();
-
+        room.Gallery = System.Text.Json.JsonSerializer.Serialize(dto.Gallery);
         await _context.SaveChangesAsync(cancellationToken);
 
         return Ok(new { message = "Cập nhật phòng thành công.", room });

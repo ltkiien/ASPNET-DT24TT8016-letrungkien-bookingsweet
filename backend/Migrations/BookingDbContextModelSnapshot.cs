@@ -104,6 +104,9 @@ namespace api_booking_sweet.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
+                    b.Property<int>("Floor")
+                        .HasColumnType("int");
+
                     b.Property<int>("HotelId")
                         .HasColumnType("int");
 

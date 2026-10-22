@@ -33,6 +33,8 @@ public class CreateHotelDto
     [StringLength(500)]
     public string? ImageUrl { get; set; }
 
+    public List<string> Gallery { get; set; } = new();
+
     [Phone(ErrorMessage = "Số điện thoại không hợp lệ")]
     [StringLength(20)]
     public string? Phone { get; set; }
@@ -41,5 +43,5 @@ public class CreateHotelDto
     [StringLength(256)]
     public string? Email { get; set; }
 
-    public bool IsActive { get; set; } = true;
+    public string Status { get; set; } = "active";
 }

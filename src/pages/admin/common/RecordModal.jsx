@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import { X, Save, Pencil, Loader2, AlertCircle } from "lucide-react";
+import ImageUpload, { ImageGallery, toImageArray } from "./ImageUpload";
+
+const isImageField = (f) => f.type === "image" || f.type === "images";
 
 /**
  * Schema field:
@@ -19,22 +22,23 @@ import { X, Save, Pencil, Loader2, AlertCircle } from "lucide-react";
 export default function RecordModal({ mode, title, fields, record, size = "lg", onClose, onSubmit, onEdit }) {
   const isView = mode === "view";
   const isEdit = mode === "edit";
-
-  console.log("RecordModal render", { mode, title, fields, record, size, isView, isEdit });
+  console.log("RecordModal props:", { mode, title, fields, record, size, onClose, onSubmit, onEdit });
 
   const visibleFields = fields.filter((f) => !(f.hiddenIn || []).includes(mode));
-
+  
   const [values, setValues] = useState(() => {
     const v = {};
     fields.forEach((f) => {
-      v[f.name] = record?.[f.name] ?? f.defaultValue ?? (f.type === "checkbox" ? false : "");
+      const raw = record?.[f.name] ?? f.defaultValue;
+      v[f.name] = isImageField(f) ? toImageArray(raw) : raw ?? (f.type === "checkbox" ? false : "");
     });
     return v;
   });
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState("");
-
+  
+  console.log("RecordModal values:", values);
   useEffect(() => {
     const onKey = (e) => e.key === "Escape" && !submitting && onClose();
     document.addEventListener("keydown", onKey);
@@ -44,6 +48,7 @@ export default function RecordModal({ mode, title, fields, record, size = "lg", 
       document.body.classList.remove("modal-open");
     };
   }, [onClose, submitting]);
+
   const setField = (name, value) => {
     setValues((s) => ({ ...s, [name]: value }));
     if (errors[name]) setErrors((e) => ({ ...e, [name]: undefined }));
@@ -53,7 +58,7 @@ export default function RecordModal({ mode, title, fields, record, size = "lg", 
     const errs = {};
     visibleFields.forEach((f) => {
       const v = values[f.name];
-      const empty = v === "" || v == null;
+      const empty = v === "" || v == null || (Array.isArray(v) && v.length === 0);
       if (f.required && (empty || v === false && f.type !== "checkbox")) {
         errs[f.name] = `${f.label} là bắt buộc`;
         return;
@@ -79,10 +84,13 @@ export default function RecordModal({ mode, title, fields, record, size = "lg", 
     setSubmitting(true);
     setServerError("");
     try {
-      const payload = { ...values, id: record?.id };
+      const payload = { ...values };
       fields.forEach((f) => {
         if (f.type === "number" && payload[f.name] !== "") payload[f.name] = Number(payload[f.name]);
-      }); 
+        // ảnh đơn: File | string(URL cũ) | null(đã xóa); nhiều ảnh: mảng (File | string)
+        if (f.type === "image") payload[f.name] = payload[f.name][0] ?? null;
+      });
+      console.log("Submitting payload:", payload, "Original values:", values);
       await onSubmit(payload);
     } catch (err) {
       setServerError(err?.message || "Đã có lỗi xảy ra, vui lòng thử lại");
@@ -93,12 +101,11 @@ export default function RecordModal({ mode, title, fields, record, size = "lg", 
   const renderViewValue = (f) => {
     const v = record?.[f.name];
     if (f.viewRender) return f.viewRender(v, record);
+    if (isImageField(f)) return <ImageGallery items={toImageArray(v)} />;
     if (f.type === "checkbox") return v ? "Có" : "Không";
     if (f.type === "select") return f.options?.find((o) => String(o.value) === String(v))?.label ?? v ?? "—";
     return v === "" || v == null ? "—" : String(v);
   };
-
-  console.log("RecordModal render", { values, errors, submitting, serverError, visibleFields });
 
   const renderInput = (f) => {
     const invalid = !!errors[f.name];
@@ -110,6 +117,20 @@ export default function RecordModal({ mode, title, fields, record, size = "lg", 
       placeholder: f.placeholder,
     };
     switch (f.type) {
+      case "image":
+      case "images":
+        return (
+          <ImageUpload
+            value={values[f.name]}
+            onChange={(arr) => setField(f.name, arr)}
+            multiple={f.type === "images"}
+            maxFiles={f.maxFiles}
+            maxSizeMB={f.maxSizeMB}
+            accept={f.accept}
+            disabled={common.disabled}
+            invalid={invalid}
+          />
+        );
       case "textarea":
         return <textarea {...common} rows={3} value={values[f.name]} onChange={(e) => setField(f.name, e.target.value)} />;
       case "select":
@@ -159,7 +180,7 @@ export default function RecordModal({ mode, title, fields, record, size = "lg", 
               )}
               <div className="row g-3">
                 {visibleFields.map((f) => {
-                  const col = f.col || (f.type === "textarea" ? 12 : 6);
+                  const col = f.col || (f.type === "textarea" || isImageField(f) ? 12 : 6);
                   return (
                     <div key={f.name} className={`col-12 col-md-${col}`}>
                       <label htmlFor={`f-${f.name}`} className="form-label fw-medium mb-1">

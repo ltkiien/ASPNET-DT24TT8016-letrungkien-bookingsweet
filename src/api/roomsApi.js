@@ -20,6 +20,7 @@ function getAuthHeaders(token, includeContentType = true) {
 
 async function handleResponse(response, errorMessage) {
   const result = await response.json().catch(() => null);
+  console.log("API response:", result);
 
   if (!response.ok) {
     const validationErrors = result?.errors
@@ -33,6 +34,8 @@ async function handleResponse(response, errorMessage) {
       `${errorMessage} (HTTP ${response.status}).`
     );
   }
+  console.log("API response:", result);
+
 
   return result;
 }

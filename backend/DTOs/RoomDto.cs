@@ -13,12 +13,19 @@ public class CreateRoomDto
 
     [Range(1, 30)]
     public int Capacity { get; set; } = 2;
+    [Range(1, 30)]
+    public int Floor { get; set; } = 1;
+
+    public List<string> Gallery { get; set; } = new();
 
     [Range(typeof(decimal), "0.01", "999999999")]
     public decimal Price { get; set; }
 
     [Required]
     public string Status { get; set; } = "Available";
+
+    [Required]
+    public string Type { get; set; } = "single";
 
     [StringLength(1000)]
     public string? Description { get; set; }

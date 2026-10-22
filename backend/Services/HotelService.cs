@@ -25,7 +25,6 @@ public class HotelService : IHotelService
             Description = request.Description?.Trim(),
             Price = request.Price,
             StarRating = request.StarRating,
-            IsActive = request.IsActive,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -79,7 +78,6 @@ public class HotelService : IHotelService
         hotel.Phone = request.Phone?.Trim();
         hotel.Email = request.Email?.Trim();
 
-        hotel.IsActive = request.IsActive;
 
         await _context.SaveChangesAsync();
 

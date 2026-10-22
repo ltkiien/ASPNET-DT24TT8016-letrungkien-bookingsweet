@@ -21,6 +21,11 @@ public class Room
 
     [Range(1, 30)]
     public int Capacity { get; set; } = 2;
+    [Range(1, 30)]
+    public int Floor { get; set; } = 1;
+
+    [StringLength(2000)]
+    public string? Gallery { get; set; }
 
     [Column(TypeName = "decimal(18,2)")]
     [Range(typeof(decimal), "0.01", "999999999")]
@@ -29,6 +34,10 @@ public class Room
     [Required]
     [StringLength(30)]
     public string Status { get; set; } = "Available";
+
+    [Required]
+    [StringLength(30)]
+    public string Type { get; set; } = "single";
 
     [StringLength(1000)]
     public string? Description { get; set; }
