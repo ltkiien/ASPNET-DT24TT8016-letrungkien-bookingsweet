@@ -4,6 +4,9 @@ using backend.Services;
 
 namespace backend.Controllers;
 
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+
 [ApiController]
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
@@ -59,5 +62,45 @@ public class AuthController : ControllerBase
         }
 
         return Ok(result);
+    }
+
+    [HttpPost("logout")]
+    [Authorize]
+    public IActionResult Logout()
+    {
+        return Ok(new
+        {
+            message = "Đăng xuất thành công."
+        });
+    }
+
+    [HttpGet("me")]
+    [Authorize]
+    public async Task<IActionResult> GetMe()
+    {
+        var userIdClaim =
+            User.FindFirst(ClaimTypes.NameIdentifier)
+            ?? User.FindFirst("sub");
+
+        if (userIdClaim == null ||
+            !int.TryParse(userIdClaim.Value, out var userId))
+        {
+            return Unauthorized(new
+            {
+                message = "Không xác định được tài khoản đăng nhập."
+            });
+        }
+
+        var user = await _authService.GetMeAsync(userId);
+
+        if (user == null)
+        {
+            return NotFound(new
+            {
+                message = "Không tìm thấy tài khoản."
+            });
+        }
+
+        return Ok(user);
     }
 }

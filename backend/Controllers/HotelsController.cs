@@ -65,6 +65,19 @@ public class HotelsController : ControllerBase
         };
     }
 
+    [HttpGet("public")]
+    [AllowAnonymous]
+    public async Task<IActionResult> UserGetAllHotels()
+    {
+        var hotels = await _context.Hotels
+            .AsNoTracking()
+            .Where(h => h.Status == "active")
+            .OrderBy(h => h.Name)
+            .ToListAsync();
+
+        return Ok(hotels.Select(MapHotel));
+    }
+
     // POST: /api/Hotels
     [HttpPost]
     [Authorize(Roles = "Admin")]
@@ -196,6 +209,16 @@ public class HotelsController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteHotel(int id)
     {
+        var hasRooms = await _context.Rooms
+    .AnyAsync(r => r.HotelId == id);
+
+        if (hasRooms)
+        {
+            return BadRequest(new
+            {
+                message = "Không thể xóa khách sạn vì vẫn còn phòng. Vui lòng xử lý các phòng trước."
+            });
+        }
         var hotel = await _context.Hotels
             .FirstOrDefaultAsync(h => h.Id == id);
 

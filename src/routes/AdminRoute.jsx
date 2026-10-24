@@ -1,11 +1,13 @@
 import { Navigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../pages/AuthContext";
 
 function AdminRoute({ children }) {
-    const { isAuthenticated, isAdmin } = useAuth();
-    console.log("isAuthenticated:", isAuthenticated, isAdmin);
-
-    if (!isAuthenticated) {
+    const { user, isAdmin, loading } = useAuth();
+    console.log("isAuthenticated:", user, isAdmin);
+    if (loading) {
+        return <div>Đang kiểm tra đăng nhập...</div>;
+    }
+    if (!user) {
         return (
             <Navigate
                 to="/login"

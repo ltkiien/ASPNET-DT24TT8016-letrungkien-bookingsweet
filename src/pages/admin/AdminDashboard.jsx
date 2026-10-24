@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 
 import { Link } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../AuthContext";
 
 function AdminDashboard() {
     const { user, logout } = useAuth();
@@ -154,7 +154,7 @@ function AdminDashboard() {
                     />
 
                     <SidebarItem
-                        link={"/admin/hotels"}
+                        link={"/admin/bookings"}
                         icon={<CalendarCheck size={19} />}
                         text="Đặt phòng"
                     />

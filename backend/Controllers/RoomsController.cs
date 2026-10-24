@@ -22,9 +22,9 @@ public class RoomsController : ControllerBase
 
     private static readonly string[] AllowedStatuses =
     {
-        "available",
-        "maintenance",
-        "occupied"
+        "Available",
+        "Maintenance",
+        "Occupied"
     };
     private static readonly string[] AllowedTypes =
     {
@@ -35,35 +35,106 @@ public class RoomsController : ControllerBase
         "suite"
     };
 
-    [HttpGet("/api/rooms")]
-    public async Task<IActionResult> GetAllRooms()
+    private static RoomResponseDto MapRoom(Room room)
+    {
+        List<string> gallery = new();
+
+        if (!string.IsNullOrWhiteSpace(room.Gallery))
+        {
+            try
+            {
+                gallery =
+                    System.Text.Json.JsonSerializer
+                        .Deserialize<List<string>>(room.Gallery)
+                    ?? new List<string>();
+            }
+            catch (System.Text.Json.JsonException)
+            {
+                // Dữ liệu cũ không phải JSON hợp lệ
+                gallery = new List<string>();
+            }
+        }
+
+
+        return new RoomResponseDto
+        {
+            Id = room.Id,
+            HotelId = room.HotelId,
+            HotelName = room.Hotel.Name,
+            Name = room.Name.Trim(),
+            RoomNumber = room.RoomNumber.Trim(),
+            Capacity = room.Capacity,
+            Floor = room.Floor,
+            Gallery = gallery,
+            Type = room.Type,
+            Price = room.Price,
+            Status = room.Status,
+            Description = room.Description?.Trim()
+        };
+    }
+
+    [HttpGet("/api/Rooms/public/occupied")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetOccupiedRooms()
     {
         var rooms = await _context.Rooms
+            .AsNoTracking()
             .Include(r => r.Hotel)
-            .Select(r => new
-            {
-                r.Id,
-                r.HotelId,
-                HotelName = r.Hotel.Name,
-                r.Name,
-                r.RoomNumber,
-                r.Capacity,
-                r.Floor,
-                r.Gallery,
-                r.Type,
-                r.Price,
-                r.Status,
-                r.Description
-            })
+            .Where(r => r.Status.ToLower() == "occupied")
             .ToListAsync();
 
-        return Ok(rooms);
+        return Ok(rooms.Select(r => MapRoom(r)));
+    }
+
+    [HttpGet("/api/Rooms/public")]
+    [AllowAnonymous]
+    public async Task<IActionResult> UserGetAllRooms()
+    {
+        var rooms = await _context.Rooms
+            .AsNoTracking()
+            .Include(r => r.Hotel)
+            .Where(r =>
+                r.Status.ToLower() == "available" &&
+                r.Hotel != null &&
+                r.Hotel.Status == "active")
+            .ToListAsync();
+
+        return Ok(rooms.Select(r => MapRoom(r)));
+    }
+
+    [HttpGet("/api/hotels/{hotelId:int}/rooms")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetRoomsByHotel(int hotelId)
+    {
+        var rooms = await _context.Rooms
+            .AsNoTracking()
+            .Include(r => r.Hotel)
+            .Where(r =>
+                r.HotelId == hotelId &&
+                r.Hotel != null &&
+                r.Hotel.Status == "active" &&
+                r.Status.ToLower() == "available")
+            .ToListAsync();
+
+        return Ok(rooms.Select(r => MapRoom(r)));
+    }
+
+    [HttpGet("/api/rooms")]
+    public async Task<IActionResult> GetAllRooms(
+    CancellationToken cancellationToken)
+    {
+        var rooms = await _context.Rooms
+            .AsNoTracking()
+            .Include(r => r.Hotel)
+            .ToListAsync(cancellationToken);
+
+        return Ok(rooms.Select(r => MapRoom(r)).ToList());
     }
 
     [HttpGet]
     public async Task<IActionResult> GetRooms(
-        int hotelId,
-        CancellationToken cancellationToken)
+    int hotelId,
+    CancellationToken cancellationToken)
     {
         var hotelExists = await _context.Hotels
             .AnyAsync(h => h.Id == hotelId, cancellationToken);
@@ -73,25 +144,12 @@ public class RoomsController : ControllerBase
 
         var rooms = await _context.Rooms
             .AsNoTracking()
+            .Include(r => r.Hotel)
             .Where(r => r.HotelId == hotelId)
             .OrderBy(r => r.RoomNumber)
-            .Select(r => new
-            {
-                r.Id,
-                r.HotelId,
-                r.Name,
-                r.RoomNumber,
-                r.Capacity,
-                r.Floor,
-                r.Gallery,
-                r.Type,
-                r.Price,
-                r.Status,
-                r.Description
-            })
             .ToListAsync(cancellationToken);
 
-        return Ok(rooms);
+        return Ok(rooms.Select(r => MapRoom(r)).ToList());
     }
 
     [HttpGet("{id:int}")]
@@ -124,6 +182,7 @@ public class RoomsController : ControllerBase
 
         return Ok(room);
     }
+
 
     [HttpPost]
     public async Task<IActionResult> CreateRoom(
@@ -173,7 +232,10 @@ public class RoomsController : ControllerBase
         return CreatedAtAction(
             nameof(GetRoom),
             new { hotelId, id = room.Id },
-            room);
+            MapRoom(await _context.Rooms
+            .Include(r => r.Hotel)
+            .FirstAsync(r => r.Id == room.Id, cancellationToken))
+);
     }
 
     [HttpPut("{id:int}")]
@@ -218,7 +280,15 @@ public class RoomsController : ControllerBase
         room.Gallery = System.Text.Json.JsonSerializer.Serialize(dto.Gallery);
         await _context.SaveChangesAsync(cancellationToken);
 
-        return Ok(new { message = "Cập nhật phòng thành công.", room });
+        await _context.Entry(room)
+            .Reference(r => r.Hotel)
+            .LoadAsync(cancellationToken);
+
+        return Ok(new
+        {
+            message = "Cập nhật phòng thành công.",
+            data = MapRoom(room)
+        });
     }
 
     [HttpDelete("{id:int}")]

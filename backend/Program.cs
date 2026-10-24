@@ -79,12 +79,12 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+app.UseCors("ReactApp");
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseHttpsRedirection();
 
-app.UseCors("ReactApp");
 
 app.UseStaticFiles();
 // Map Controllers

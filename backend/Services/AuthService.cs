@@ -98,4 +98,19 @@ public class AuthService : IAuthService
             }
         };
     }
+
+    public async Task<object?> GetMeAsync(int userId)
+    {
+        return await _context.Users
+            .AsNoTracking()
+            .Where(u => u.Id == userId)
+            .Select(u => new
+            {
+                id = u.Id,
+                fullName = u.FullName,
+                email = u.Email,
+                role = u.Role
+            })
+            .FirstOrDefaultAsync();
+    }
 }

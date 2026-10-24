@@ -164,3 +164,4 @@ C:\Users\KKKK\Downloads\ASPNET-DT24TT8016-letrungkien-bookingsweet\booking-sweet
 C:\Users\KKKK\Downloads\ASPNET-DT24TT8016-letrungkien-bookingsweet\booking-sweet\backend\obj\Debug\net9.0\ref\api-booking-sweet.dll
 C:\Users\KKKK\Downloads\ASPNET-DT24TT8016-letrungkien-bookingsweet\booking-sweet\backend\bin\Debug\net9.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\Users\KKKK\Downloads\ASPNET-DT24TT8016-letrungkien-bookingsweet\booking-sweet\backend\bin\Debug\net9.0\Microsoft.Bcl.Cryptography.dll
+C:\Users\KKKK\Downloads\ASPNET-DT24TT8016-letrungkien-bookingsweet\booking-sweet\backend\bin\Debug\net9.0\api-booking-sweet.staticwebassets.runtime.json

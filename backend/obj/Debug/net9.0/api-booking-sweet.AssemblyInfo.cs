@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("api-booking-sweet")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+231fd9cff320b86d787c92abba5f085efe48451f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6886f1efc292fb20f958d6cd9596c3b1d7d8e982")]
 [assembly: System.Reflection.AssemblyProductAttribute("api-booking-sweet")]
 [assembly: System.Reflection.AssemblyTitleAttribute("api-booking-sweet")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -1,6 +1,6 @@
 
 import { useEffect, useMemo, useState } from "react";
-import {createHotel, getAllHotels, updateHotel} from "../../api/HotelsApi";
+import {createHotel, deleteHotel, getAllHotels, updateHotel} from "../../api/HotelsApi";
 import DataTable from "./common/DataTable";
 import AdminPageContainer from "./layout/AdminPageContainer";
 import AdminPageHeader from "./common/AdminPageHeader";
@@ -18,7 +18,7 @@ const StatusBadge = ({ value }) => {
 
 const fields = [
 //   { name: "code", label: "Mã khách sạn", required: true, readOnlyOnEdit: true },
-{name: "id", label: "ID", hiddenIn: ["create", "edit"]},
+    {name: "id", label: "ID", hiddenIn: ["create", "edit"]},
   { name: "name", label: "Tên khách sạn", required: true },
   { name: "city", label: "Thành phố", required: true },
   { name: "starRating", label: "Hạng sao", type: "select", required: true, options: [1, 2, 3, 4, 5].map((n) => ({ value: n, label: `${n} sao` })) },
@@ -82,15 +82,13 @@ function HotelManagement() {
         setHotels((list) => list.map((r) => (r.id === payload.id ? { ...r, ...newPayload, id: payload.id } : r)));
     };
 
-    const handleDelete = (hotel) => {
+    const handleDelete = async (hotel) => {
 
-        if (!confirmed) return;
-
+        await deleteHotel(hotel.id);
         setHotels(prev =>
             prev.filter(h => h.id !== hotel.id)
         );
 
-        setSelectedHotel(null);
     };
 
     return (

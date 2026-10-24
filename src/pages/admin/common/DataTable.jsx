@@ -70,6 +70,8 @@ export default function DataTable({
   const [modal, setModal] = useState(null); // { mode: 'create'|'edit'|'view', record }
   const [toDelete, setToDelete] = useState(null);
 
+  console.log("DataTable props:", { title, subtitle, columns, data, fields, rowKey, loading, onCreate, onUpdate, onDelete, onRefresh, permissions, pageSizeOptions, entityName, deleteLabel, toolbarExtra, modalSize });
+
   const getValue = (row, col) =>
     col.accessor ? col.accessor(row) : row[col.key];
 

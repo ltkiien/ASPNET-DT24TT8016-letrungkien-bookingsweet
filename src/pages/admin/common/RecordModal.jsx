@@ -22,9 +22,9 @@ const isImageField = (f) => f.type === "image" || f.type === "images";
 export default function RecordModal({ mode, title, fields, record, size = "lg", onClose, onSubmit, onEdit }) {
   const isView = mode === "view";
   const isEdit = mode === "edit";
-  console.log("RecordModal props:", { mode, title, fields, record, size, onClose, onSubmit, onEdit });
 
   const visibleFields = fields.filter((f) => !(f.hiddenIn || []).includes(mode));
+  console.log("RecordModal visibleFields:", visibleFields, "record:", record, "mode:", mode);
   
   const [values, setValues] = useState(() => {
     const v = {};
@@ -38,7 +38,6 @@ export default function RecordModal({ mode, title, fields, record, size = "lg", 
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState("");
   
-  console.log("RecordModal values:", values);
   useEffect(() => {
     const onKey = (e) => e.key === "Escape" && !submitting && onClose();
     document.addEventListener("keydown", onKey);
@@ -90,7 +89,6 @@ export default function RecordModal({ mode, title, fields, record, size = "lg", 
         // ảnh đơn: File | string(URL cũ) | null(đã xóa); nhiều ảnh: mảng (File | string)
         if (f.type === "image") payload[f.name] = payload[f.name][0] ?? null;
       });
-      console.log("Submitting payload:", payload, "Original values:", values);
       await onSubmit(payload);
     } catch (err) {
       setServerError(err?.message || "Đã có lỗi xảy ra, vui lòng thử lại");
@@ -137,7 +135,9 @@ export default function RecordModal({ mode, title, fields, record, size = "lg", 
         return (
           <select {...common} className={`form-select ${invalid ? "is-invalid" : ""}`} value={values[f.name]} onChange={(e) => setField(f.name, e.target.value)}>
             <option value="">-- Chọn --</option>
-            {f.options?.map((o) => (
+            {typeof f.options === "function" ? f.options(values).map((o) => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            )) : f.options?.map((o) => (
               <option key={o.value} value={o.value}>{o.label}</option>
             ))}
           </select>

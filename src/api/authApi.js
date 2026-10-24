@@ -1,6 +1,8 @@
+const API_URL = import.meta.env.VITE_BACKEND_URL + "/Auth";
 export const login = async (email, password) => {
 
-    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/Auth/login`, {
+
+    const response = await fetch(`${API_URL}/login`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -27,7 +29,7 @@ export const register = async (
     phone
 ) => {
     const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/Auth/register`,
+        `${API_URL}/register`,
         {
             method: "POST",
             headers: {
@@ -52,3 +54,45 @@ export const register = async (
 
     return data;
 };
+
+
+export async function logoutApi() {
+  const token = getToken();
+
+  try {
+    if (token) {
+      await fetch(`${API_URL}/logout`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    }
+  } finally {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+  }
+}
+
+export async function getMe() {
+  const token =
+    localStorage.getItem("token") ||
+    JSON.parse(localStorage.getItem("user") || "null")?.token ||
+    JSON.parse(localStorage.getItem("user") || "null")?.accessToken;
+  if (!token) {
+    throw new Error("Bạn chưa đăng nhập.");
+  }
+
+  const response = await fetch(`${API_URL}/me`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Không thể lấy thông tin tài khoản.");
+  }
+
+  return response.json();
+}

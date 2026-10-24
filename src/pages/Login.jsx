@@ -1,4 +1,3 @@
-import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "../components/LanguageSwitcher";
@@ -13,6 +12,7 @@ import {
 } from "lucide-react";
 
 import { login } from "../api/authApi";
+import { useAuth } from "./AuthContext";
 
 function Login() {
     const navigate = useNavigate();
@@ -54,23 +54,38 @@ const { loginUser } = useAuth();
             setLoading(true);
             setError("");
 
+            
             const data = await login(
-                form.email,
-                form.password
+            form.email,
+            form.password
             );
 
-            loginUser(data);
+            console.log("Login API trả về:", data);
 
-            if (data?.user?.role === "Admin") {
-                navigate("/admin");
-            } else {
-                navigate("/");
+            const token =
+            data?.token ||
+            data?.accessToken ||
+            data?.user?.token ||
+            data?.user?.accessToken;
+
+            if (!token) {
+            throw new Error("API đăng nhập không trả về token.");
             }
 
-            localStorage.setItem(
-                "user",
-                JSON.stringify(data.user)
-            );
+            localStorage.setItem("token", token);
+            localStorage.setItem("user", JSON.stringify(data.user));
+
+            loginUser({
+            ...data.user,
+            token,
+            });
+
+            if (data?.user?.role?.toLowerCase() === "admin") {
+            navigate("/admin");
+            } else {
+            navigate("/");
+            }
+
         } catch (error) {
             setError(
                 error.message || t("login.loginFailed")
@@ -82,31 +97,6 @@ const { loginUser } = useAuth();
 
     return (
         <div className="min-vh-100 bg-light">
-
-            {/* Navbar */}
-            <nav className="navbar bg-white border-bottom">
-                <div className="container py-2">
-
-                    <Link
-                        to="/"
-                        className="navbar-brand d-flex align-items-center gap-2 fw-bold text-primary"
-                    >
-                        <Hotel size={28} />
-
-                        <span className="fs-4">
-                            Booking Sweet
-                        </span>
-                    </Link>
-                    <LanguageSwitcher />
-                    <Link
-                        to="/register"
-                        className="btn btn-outline-primary rounded-pill px-4"
-                    >
-                        {t("common.register")}
-                    </Link>
-
-                </div>
-            </nav>
 
             {/* Login */}
             <main>

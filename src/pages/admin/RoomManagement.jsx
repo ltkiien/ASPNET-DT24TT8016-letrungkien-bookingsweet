@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Building2, BedDouble, DoorOpen, DoorClosed, Wrench } from "lucide-react";
-import { createRoom, getAllRooms, updateRoom } from "../../api/roomsApi";
+import { createRoom, deleteRoom, getAllRooms, updateRoom } from "../../api/roomsApi";
 import DataTable from "./common/DataTable";
 import { getAllHotels } from "../../api/HotelsApi";
+import { uploadImage } from "../../api/uploadApi";
 
 /**
  * Quan he: 1 Hotel (hotels) -> N Room (rooms), room.hotelId tro toi hotel.id
@@ -22,10 +23,10 @@ const ROOM_TYPES = [
 ];
 
 const ROOM_STATUS = {
-  available: { label: "Còn trống", cls: "success" },
-  occupied: { label: "Đang ở", cls: "primary" },
-  cleaning: { label: "Đang dọn", cls: "warning" },
-  maintenance: { label: "Bảo trì", cls: "danger" },
+  Available: { label: "Còn trống", cls: "success" },
+  Occupied: { label: "Đang ở", cls: "primary" },
+  Cleaning: { label: "Đang dọn", cls: "warning" },
+  Maintenance: { label: "Bảo trì", cls: "danger" },
 };
 
 const formatVND = (n) =>
@@ -154,6 +155,8 @@ export default function RoomManagement() {
         options: Object.entries(ROOM_STATUS).map(([value, { label }]) => ({ value, label })),
       },
       { name: "description", label: "Mô tả", type: "textarea" },
+      { name: "imageUrl", label: "Ảnh đại diện", type: "image", maxSizeMB: 5 },
+      { name: "gallery", label: "Thư viện ảnh", type: "images", maxFiles: 8 },
     ],
     [hotels, rooms, hotelId]
   );
@@ -169,7 +172,6 @@ export default function RoomManagement() {
         const data = await getAllHotels();
         setHotels(data);
       } catch (error) {
-        console.error("Lỗi tải khách sạn:", error);
       }
     }
 
@@ -177,12 +179,20 @@ export default function RoomManagement() {
         loads();
         loadHotels();
         }, []);
-
+      const resolvedHotelImage = async (payload) => {
+          return await Promise.all(
+            payload.gallery.map(async (file) => {
+              if (typeof file === "string") {
+                return file; // giữ nguyên URL cũ
+              }
+              const result = await uploadImage(file);
+                  return result.url;
+              }));
+          };
   // ---------- CRUD (thay bang goi API that) ----------
   const handleCreate = async (values) => {
-    // await api.post("/rooms", values)
-    console.log("Creating room:", values);
-    const result = await createRoom(values.hotelId ,values);
+    const newPayload = { ...values, gallery: await resolvedHotelImage(values) };
+    const result = await createRoom(values.hotelId ,newPayload);
         const newRoom = result;
         if (!newRoom) {
         throw new Error("API không trả về thông tin phòng.");
@@ -192,20 +202,20 @@ export default function RoomManagement() {
   };
 
   const handleUpdate = async (values, row) => {
-    console.log("Updating room:", values, "Row:", row);
-    const result = await updateRoom(values.hotelId, values.id, values);
+    const newPayload = { ...values, gallery: await resolvedHotelImage(values) };
+    const result = await updateRoom(values.hotelId, values.id, newPayload);
         const newRoom = result;
-        console.log("API response:", result);
         if (!newRoom) {
         throw new Error("API không trả về thông tin phòng.");
         }
-    setRooms((list) => list.map((r) => (r.id === row.id ? { ...r, ...values, id: row.id } : r)));
+    setRooms((list) => list.map((r) => (r.id === newPayload.id ? { ...r, ...newPayload, id: newPayload.id } : r)));
   };
 
   const handleDelete = async (row) => {
     if (row.status === "occupied") {
       throw new Error("Không thể xóa phòng đang có khách ở");
     }
+    const result = await deleteRoom(row.hotelId, row.id);
     // await api.delete(`/rooms/${row.id}`)
     setRooms((list) => list.filter((r) => r.id !== row.id));
   };

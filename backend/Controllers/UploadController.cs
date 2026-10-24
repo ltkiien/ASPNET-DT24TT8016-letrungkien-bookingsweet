@@ -56,8 +56,18 @@ public class UploadController : ControllerBase
             });
         }
 
+        var webRoot = _environment.WebRootPath;
+
+        if (string.IsNullOrWhiteSpace(webRoot))
+        {
+            webRoot = Path.Combine(
+                _environment.ContentRootPath,
+                "wwwroot"
+            );
+        }
+
         var uploadsFolder = Path.Combine(
-            _environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot"),
+            webRoot,
             "uploads",
             "images"
         );

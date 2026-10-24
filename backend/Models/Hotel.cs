@@ -45,6 +45,7 @@ public class Hotel
     [StringLength(500)]
     public string? ImageUrl { get; set; }
 
+    [StringLength(2000)]
     public string? Gallery { get; set; }
 
     [StringLength(20)]

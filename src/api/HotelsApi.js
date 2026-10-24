@@ -95,7 +95,8 @@ export async function updateHotel(id, hotelData) {
   return result;
 }
 
-export const deleteHotel = async (id, token) => {
+export const deleteHotel = async (id) => {
+  const token = getToken();
   const response = await fetch(`${API_URL}/${id}`, {
     method: "DELETE",
     headers: {
